@@ -25,6 +25,11 @@ func visitDirs(files *[]string) filepath.WalkFunc {
 			return nil
 		}
 
+		// skip itself
+		if strings.Contains(path, outputName) {
+			return nil
+		}
+
 		// skip executable files
 		if filepath.Ext(path) == "" {
 			return nil

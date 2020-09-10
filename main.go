@@ -2,20 +2,23 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"path/filepath"
+	"time"
 )
 
 var (
 	targetDir  string
-	passwd     string
 	outputName string
 )
 
 func main() {
 	flag.StringVar(&targetDir, "d", "", "target directory")
-	flag.StringVar(&outputName, "o", "archive.zip", "output file name")
-	flag.StringVar(&passwd, "p", "", "password")
+	now := time.Now()
+	defaultOut := fmt.Sprintf("archive-%v-%v-%v.zip", now.Year(), int(now.Month()), now.Day())
+	flag.StringVar(&outputName, "o", defaultOut, "output file name")
+	flag.StringVar(&credentialJSONFile, "c", "credentials.json", "Google OAuth2 credentials (.json file)")
 	flag.Parse()
 	if targetDir == "" {
 		log.Fatal("Error obtaining target directory: specify directory with -d")
@@ -26,8 +29,15 @@ func main() {
 	if err != nil {
 		log.Fatal("Invalid filepath")
 	}
+	fmt.Printf("archive %s\n", targetDir)
 
-	if buildArchive() != nil {
-		log.Fatal("Error building an archive")
+	err = buildArchive()
+	if err != nil {
+		log.Fatal("Error building an archive:", err)
+	}
+
+	err = uploadFile(outputName, resumableUpload)
+	if err != nil {
+		log.Fatal("Error uploading a file:", err)
 	}
 }
