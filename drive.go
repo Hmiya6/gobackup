@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	credentialJSONFile = "googleDriveCredentials.json"
+	credentialJSONFile string
 )
 
 func getClient(config *oauth2.Config) *http.Client {
